@@ -7,6 +7,8 @@ used in with Drush 6 (which includes D8 support).
 ### Installation
 Execute `install.sh`:
 ```
+git@github.com:albatrossdigital/pdrush.git
+cd pdrush
 bash install.sh
 ```
 
