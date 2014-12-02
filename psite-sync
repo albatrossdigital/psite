@@ -55,13 +55,14 @@ echo "Syncing db from Pantheon site environment to local..."
 drush -y sql-sync-pipe @${prefix}${remote}.${env} @${local} --progress
 
 
-if [ ! $nofiles ]; then 
-  echo "Syncing files from Pantheon site environment to local..."  
-  drush -r . rsync @${prefix}${remote}.${env}:%files/ @${local}:%files --progress
-fi
-
-
 echo "Clearing caches, logging in as uid=0..."
 drush @$local rr
 drush @$local cc all
 drush @$local uli
+
+
+if [ ! $nofiles ]; then 
+  echo "Syncing files from remote site environment to local..."  
+  drush -r . rsync @${prefix}${remote}.${env}:%files/ @${local}:%files --progress
+fi
+
