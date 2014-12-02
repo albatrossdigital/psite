@@ -10,25 +10,32 @@ pass=$MYSQL_PASS
 host='localhost'
 subdir=$name.local
 domain=$name.local
+nodrupal=0
+sql=0
+apache_only=0
 
 while test $# -gt 0; do
   case "$1" in
     -h|--help)
       echo "psite-alias"
       echo " "
-      echo "psite-install --path=~/workspace/drupal --user=root --pass=pass --profile=standard"
-      echo "psite-install --repo=\"git@github.com:albatrossdigital/flight-drops-7.git\" --user=root --pass=pass --profile=flight"      
+      echo "psite-install --path=/var/www/html/drupal --user=root --pass=pass --profile=standard"
+      echo "psite-install --path=/var/www/html/workspace --repo=\"git@github.com:albatrossdigital/flight-drops-7.git\" --profile=flight"      
       echo " "
       echo "arguments:"
       echo 
       echo "options:"
       echo "--path       the path (defaults to .)"
       echo "--name       the site name (defaults to self)"
-      echo "--subdir     the path (defaults to self.local)"
-      echo "-r,--repo     the path (default: blank, no cloning)"  
-      echo "-p,--profile       specify mysql password (defaults to standard)"
+      echo "--subdir     the path (defaults to self.local, may also be set to default)"
+      echo "--domain     the path (defaults to self.local)"
+      echo "--repo     the path (default: blank, no cloning)"  
+      echo "--profile       specify mysql password (defaults to standard)"
       echo "--user       specify mysql user (defaults to $MYSQL_USER)"
       echo "--pass       specify mysql password (defaults to $MYSQL_PASS)"
+      echo "--nodrupal       flag to skip the Drupal installation step"
+      echo "--nodrupal       flag to skip the Drupal installation step"
+      echo "--apache-only       only install apache"
       echo "-h,--help       show this screen"
       exit 0
       ;;
@@ -74,6 +81,21 @@ while test $# -gt 0; do
       domain=$1
       shift
       ;;
+    --nodrupal)
+      shift
+      nodrupal=1
+      shift
+      ;;
+    --sql)
+      shift
+      sql=$1
+      shift
+      ;;
+    --apache-only)
+      shift
+      apache_only=1
+      shift
+      ;;
     *)
       break
       ;;
@@ -98,7 +120,7 @@ if [ -e /etc/apache2/sites-available ]; then
     ServerAdmin $name@localhost
     DocumentRoot "$path"
     ServerName $domain
-    <Directory "$domain">
+    <Directory "$path">
       Options Indexes FollowSymLinks
       AllowOverride All
       Order allow,deny
@@ -124,21 +146,37 @@ if [ -e /etc/apache2/sites-available ]; then
 
   # Reload Apache2
   sudo /etc/init.d/apache2 reload
+
+  # Quit if we only want to set up an apache domain
+  if [ $apache_only = 1 ]; then
+    exit
+  fi
 fi
+
+cd $path
 
 
 # Install drupal site
-cd $path
-echo $user $pass
-drush site-install $profile --db-url=mysql://$user:$pass@localhost/$name --sites-subdir=$subdir
+if [ $nodrupal != 1 ]; then
+  drush site-install $profile --db-url=mysql://$user:$pass@localhost/$name --sites-subdir=$subdir
+fi
+
 
 # Create drush site alias
 cd sites/$subdir
-echo "<?php
-" > ~/.drush/$name.alias.drushrc.php
-drush site-alias --with-db --show-passwords --with-optional @self >> ~/.drush/$name.alias.drushrc.php
-sed -i "s/\@self/\@${name}/g" ~/.drush/$name.alias.drushrc.php
+echo "" > ~/.drush/$name.aliases.drushrc.php
+drush site-alias --with-db --show-passwords --with-optional @self >> ~/.drush/$name.aliases.drushrc.php
+sed -i "s/self/${name}/g" ~/.drush/$name.aliases.drushrc.php
+cat ~/.drush/$name.aliases.drushrc.php >> ~/.drush/local.aliases.drushrc.php
+rm ~/.drush/$name.aliases.drushrc.php
 drush cc drush
+
+
+# Load sql dump
+if [ ! -z $sql ]; then
+  drush sqlc < "$sql"
+fi
+
 
 # Log the user in
 drush uli

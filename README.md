@@ -1,8 +1,8 @@
 psite
 -----
 
-Helpful drush wrappers to quickly install sites, set up aliases, and sync
-site databases and files with Pantheon.
+Helpful drush scripts to quickly install sites, set up aliases, and sync
+site databases and files with Pantheon and Acquia.
 
 ### Installation
 Execute `install.sh`:
@@ -11,13 +11,13 @@ git@github.com:albatrossdigital/psite.git
 cd psite
 sudo bash install.sh
 ```
-Optionally install [Terminus](https://github.com/pantheon-systems/terminus), 
+Optionally install [Pantheon Terminus](https://github.com/pantheon-systems/terminus), 
 set system variables, and make apache run as your user (see bottom).
 
 ### Using
 
 ##### psite-install
-Install a new site in an existing directory
+Install a new site in Drupal, create a Drush alias, add an apache vhosts entry.
 ```
 psite-install --name site --path ~/workspace/drupal --user root -pass pass --profile standard
 ```
@@ -26,7 +26,7 @@ Download codebase from repo and install site
 psite-install --name flight --repo git@github.com:albatrossdigital/flight-drops-7.git --profile flight
 ```
 
-##### Sync with Pantheon site
+##### Sync with Pantheon or Acquia site
 ```
 psite-sync self pantheonname live
 ```
@@ -41,7 +41,7 @@ pdrush drush_command
 tail /var/log/apache2/sitename.local/error.log -n100
 ```
 
-##### Helpful [Terminus](https://github.com/pantheon-systems/terminus) commands
+##### Helpful Pantheon [Terminus](https://github.com/pantheon-systems/terminus) commands
 ```
 # Authenticate.
 drush pauth $PANTHEON_USER --password=$PANTHEON_pass
