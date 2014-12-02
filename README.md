@@ -62,8 +62,10 @@ To save time, you can set the mysql user and password to use for everytime
 ```
 echo "MYSQL_USER=root;export MYSQL_USER" >> ~/.bash_profile
 echo "MYSQL_PASS=pass;export MYSQL_PASS" >> ~/.bash_profile
+# Pantheon-specific
 echo "PANTHEON_USER=name@email.com;export PANTHEON_USER" >> ~/.bash_profile
 echo "PANTHEON_PASS=pass;export PANTHEON_PASS" >> ~/.bash_profile
+echo "HOST_PREFIX=pass;export HOST_PREFIX" >> ~/.bash_profile
 source ~/.bash_profile
 ```
 

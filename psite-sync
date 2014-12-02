@@ -5,6 +5,7 @@
 local="$1"
 remote="$2"
 instance="$3"
+prefix="$HOST_PREFIX"
 
 while test $# -gt 0; do
   case "$1" in
@@ -15,6 +16,7 @@ while test $# -gt 0; do
       echo "psite-sync self pantheonname live"      
       echo " "
       echo "options:"
+      echo "--host-prefix   host drush alias prefix (for Pantheon: \"pantheon.\", defaults to \$HOST_PREFIX)"
       echo "--no-files      do not sync the files"
       echo "-h,--help       show this screen"
       exit 0
@@ -22,6 +24,11 @@ while test $# -gt 0; do
     --no-files)
       shift
       files=false
+      shift
+      ;;
+    --host-prefix)
+      shift
+      prefix="$1"
       shift
       ;;
     *)
@@ -32,12 +39,12 @@ done
 
 
 # Sync db from Pantheon site environment to local
-pdrush sql-sync-pipe @pantheon.$remote.$env @$local --progress
+pdrush sql-sync-pipe @${prefix}${remote}.${env} @${local} --progress
 
 
 # Sync files from Pantheon site environment to local
 if [ ! $files ]; then 
-  pdrush -r . rsync @pantheon.$remote.$env:%files @$local:%files/
+  pdrush -r . rsync @${prefix}${remote}.${env}:%files @${local}:%files/
 fi
 
 
