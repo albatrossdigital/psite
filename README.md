@@ -60,10 +60,10 @@ drush psite-clone $SITE_UUID dev test
 To save time, you can set the mysql user and password to use for everytime
 `psite-install` is run (unless --user and --pass are manually set):
 ```
-MYSQL_USER=root;export MYSQL_USER >> ~/.bash_profile
-MYSQL_PASS=pass;export MYSQL_PASS >> ~/.bash_profile
-PANTHEON_USER=name@email.com;export PANTHEON_USER >> ~/.bash_profile
-PANTHEON_PASS=pass;export PANTHEON_PASS >> ~/.bash_profile
+echo "MYSQL_USER=root;export MYSQL_USER" >> ~/.bash_profile
+echo "MYSQL_PASS=pass;export MYSQL_PASS" >> ~/.bash_profile
+echo "PANTHEON_USER=name@email.com;export PANTHEON_USER" >> ~/.bash_profile
+echo "PANTHEON_PASS=pass;export PANTHEON_PASS" >> ~/.bash_profile
 source ~/.bash_profile
 ```
 
