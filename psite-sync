@@ -19,6 +19,7 @@ while test $# -gt 0; do
       echo "options:"
       echo "--host-prefix   host drush alias prefix (for Pantheon: \"pantheon.\", defaults to \$HOST_PREFIX)"
       echo "--no-files      do not sync the files"
+      echo "--backup-dir    directory to save backups to (defaults to \$PSITE_BACKUP_DIR)"
       echo "-h,--help       show this screen"
       exit 0
       ;;
@@ -32,7 +33,7 @@ while test $# -gt 0; do
       prefix="$1"
       shift
       ;;
-    --backup-dir)
+    --)
       shift
       backup_dir=$1
       shift
@@ -43,10 +44,12 @@ while test $# -gt 0; do
   esac
 done
 
-if [ ! -z $backup_dir ]; then 
-  echo "Taking backup of local in ${backup_dir}..."  
-  drush $local sql-dump --gzip --result-file=$backup_dir/backup_${LOCAL}_$(date +"%Y-%m-%d").sql
+
+if [ ! -z $backup_dir ]; then
+  echo "Taking backup of local database..."  
+  drush @${local} sql-dump --gzip --result-file=$backup_dir/backup_${local}_$(date +"%Y-%m-%d").sql
 fi
+
 
 echo "Syncing db from Pantheon site environment to local..."
 drush -y sql-sync-pipe @${prefix}${remote}.${env} @${local} --progress
