@@ -1,0 +1,47 @@
+#!/bin/bash
+# psite-sync LOCAL SITENAME ENV
+# psite-sync self pantheonname live
+
+local="$1"
+remote="$2"
+instance="$3"
+
+while test $# -gt 0; do
+  case "$1" in
+    -h|--help)
+      echo "psite-alias"
+      echo " "
+      echo "psite-sync LOCAL SITENAME ENV"
+      echo "psite-sync self pantheonname live"      
+      echo " "
+      echo "options:"
+      echo "--no-files      do not sync the files"
+      echo "-h,--help       show this screen"
+      exit 0
+      ;;
+    --no-files)
+      shift
+      files=false
+      shift
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+
+# Sync db from Pantheon site environment to local
+pdrush sql-sync-pipe @pantheon.$remote.$env @$local --progress
+
+
+# Sync files from Pantheon site environment to local
+if [ ! $files ]; then 
+  pdrush -r . rsync @pantheon.$remote.$env:%files @$local:%files/
+fi
+
+
+# Clear caches, log user in
+drush @$local rr
+drush @$local cc all
+drush @$local uli

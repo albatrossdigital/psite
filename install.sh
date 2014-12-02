@@ -1,13 +1,10 @@
+#!/bin/bash
+# Note: this should be run as sudo
 
+drush dl drush_sql_sync_pipe --destination=$HOME/.drush
 
-echo "# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
-
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi" >> ~/.bashrc
-
-echo "function pdrush() { drush --strict=0 \"\$@\" ;}" >> ~/.bash_aliases
+cp pdrush /usr/bin/pdrush
+cp psite-install /usr/bin/psite-install
+cp psite-sync /usr/bin/psite-alias
+chmod +x /usr/bin/pdrush /usr/bin/psite-install /usr/bin/psite-alias
 

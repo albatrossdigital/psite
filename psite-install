@@ -1,0 +1,146 @@
+#!/bin/bash
+# psite-install --name site --path ~/workspace/drupal --user root -pass pass --profile standard
+# psite-install --name flight --repo git@github.com:albatrossdigital/flight-drops-7.git --profile flight
+
+path='.'
+name='self'
+profile='standard'
+user=$MYSQL_USER
+pass=$MYSQL_PASS
+host='localhost'
+subdir=$name.local
+domain=$name.local
+
+while test $# -gt 0; do
+  case "$1" in
+    -h|--help)
+      echo "psite-alias"
+      echo " "
+      echo "psite-install --path=~/workspace/drupal --user=root --pass=pass --profile=standard"
+      echo "psite-install --repo=\"git@github.com:albatrossdigital/flight-drops-7.git\" --user=root --pass=pass --profile=flight"      
+      echo " "
+      echo "arguments:"
+      echo 
+      echo "options:"
+      echo "--path       the path (defaults to .)"
+      echo "--name       the site name (defaults to self)"
+      echo "--subdir     the path (defaults to self.local)"
+      echo "-r,--repo     the path (default: blank, no cloning)"  
+      echo "-p,--profile       specify mysql password (defaults to standard)"
+      echo "--user       specify mysql user (defaults to $MYSQL_USER)"
+      echo "--pass       specify mysql password (defaults to $MYSQL_PASS)"
+      echo "-h,--help       show this screen"
+      exit 0
+      ;;
+    --name)
+      shift
+      name=$1
+      subdir=$name.local
+      domain=$name.local
+      shift
+      ;;
+    --path)
+      shift
+      path=$1
+      shift
+      ;;
+    -p|--profile)
+      shift
+      profile=$1
+      shift
+      ;;
+     --user)
+      shift
+      user=$1
+      shift
+      ;;
+    --host)
+      shift
+      host=$1
+      shift
+      ;;
+    --pass)
+      shift
+      pass=$1
+      shift
+      ;;
+    --repo)
+      shift
+      repo=$1
+      shift
+      ;;
+    --domain)
+      shift
+      domain=$1
+      shift
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+# clone repo if necessary
+if [ $repo ]; then #&& [ ! -d $path/$name ]; then
+  cd $path  
+  git clone $repo $name
+  git checkout -b drop
+  git checkout master
+  $path=$path/$name
+fi
+
+
+# apache only
+if [ -e /etc/apache2/sites-available ]; then
+  # Creation the file with apache VirtualHost configuration in /etc/apache2/sites-available/  
+  echo "
+  <VirtualHost *:80>
+    ServerAdmin $name@localhost
+    DocumentRoot "$path"
+    ServerName $domain
+    <Directory "$domain">
+      Options Indexes FollowSymLinks
+      AllowOverride All
+      Order allow,deny
+      Allow from all
+    </Directory>
+    ErrorLog /var/log/apache2/$domain/error.log
+    LogLevel warn
+    CustomLog /var/log/apache2/$domain/access.log combined
+    <IfModule mpm_peruser_module>
+      ServerEnvironment apache apache
+    </IfModule>
+  </VirtualHost>
+  " | sudo tee /etc/apache2/sites-available/${domain}.conf > /dev/null
+  
+  # Create a directory for your apache errors log
+  sudo mkdir /var/log/apache2/$domain/
+
+  # Add the host to the hosts file
+  echo 127.0.0.1 $domain | sudo tee --append /etc/hosts > /dev/null
+
+  # Enable the site
+  sudo a2ensite $domain
+
+  # Reload Apache2
+  sudo /etc/init.d/apache2 reload
+fi
+
+
+# Install drupal site
+cd $path
+echo $user $pass
+drush site-install $profile --db-url=mysql://$user:$pass@localhost/$name --sites-subdir=$subdir
+
+# Create drush site alias
+cd sites/$subdir
+echo "<?php
+" > ~/.drush/$name.alias.drushrc.php
+drush site-alias --with-db --show-passwords --with-optional @self >> ~/.drush/$name.alias.drushrc.php
+sed -i "s/\@self/\@${name}/g" ~/.drush/$name.alias.drushrc.php
+drush cc drush
+
+# Log the user in
+drush uli
+
+
