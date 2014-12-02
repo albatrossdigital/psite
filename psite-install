@@ -82,7 +82,7 @@ while test $# -gt 0; do
       domain=$1
       shift
       ;;
-    --nodrupal)
+    --no-drupal|--nodrupal)
       shift
       nodrupal=1
       shift
@@ -163,7 +163,6 @@ fi
 
 
 cd $path
-pwd
 
 
 # Install drupal site
@@ -174,11 +173,9 @@ fi
 
 # Create drush site alias
 cd sites/$subdir
-echo "" > ~/.drush/$name.aliases.drushrc.php
-drush site-alias --with-db --show-passwords --with-optional @self >> ~/.drush/$name.aliases.drushrc.php
-sed -i "s/self/${name}/g" ~/.drush/$name.aliases.drushrc.php
-cat ~/.drush/$name.aliases.drushrc.php >> ~/.drush/local.aliases.drushrc.php
-rm ~/.drush/$name.aliases.drushrc.php
+echo "<?php" > ~/.drush/$name.aliases.drushrc.php
+drush site-alias --with-db --show-passwords --with-optional @self >> ~/.drush/$name.alias.drushrc.php
+sed -i "s/self/${name}/g" ~/.drush/$name.alias.drushrc.php
 drush cc drush
 
 
