@@ -11,7 +11,7 @@ git@github.com:albatrossdigital/psite.git
 cd psite
 sudo bash install.sh
 ```
-Optionally install (Terminus)[https://github.com/pantheon-systems/terminus], 
+Optionally install [Terminus](https://github.com/pantheon-systems/terminus), 
 set system variables, and make apache run as your user (see bottom).
 
 ### Using
@@ -41,7 +41,7 @@ pdrush drush_command
 tail /var/log/apache2/sitename.local/error.log -n100
 ```
 
-##### Helpful Terminus commands
+##### Helpful [Terminus](https://github.com/pantheon-systems/terminus) commands
 ```
 # Authenticate.
 drush pauth $PANTHEON_USER --password=$PANTHEON_pass
