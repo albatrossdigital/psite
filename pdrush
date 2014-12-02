@@ -11,7 +11,7 @@ while test $# -gt 0; do
 done
 
 
-drush --strict=0 "$@"
+drush $@ --strict=0
 
 
 

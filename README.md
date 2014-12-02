@@ -5,14 +5,18 @@ Helpful drush scripts to quickly install sites, set up aliases, and sync
 site databases and files with Pantheon and Acquia.
 
 ### Installation
+Dependencies:
+* [Drush 6.x](https://github.com/drush-ops/drush)
+* Optionally install [Pantheon Terminus](https://github.com/pantheon-systems/terminus), 
+set system variables, and make apache run as your user (see bottom).
+
 Execute `install.sh`:
 ```
 git@github.com:albatrossdigital/psite.git
 cd psite
 sudo bash install.sh
 ```
-Optionally install [Pantheon Terminus](https://github.com/pantheon-systems/terminus), 
-set system variables, and make apache run as your user (see bottom).
+
 
 ### Using
 
@@ -60,13 +64,13 @@ drush psite-clone $SITE_UUID dev test
 To save time, you can set the mysql user and password to use for everytime
 `psite-install` is run (unless --user and --pass are manually set):
 ```
-echo "MYSQL_USER=root;export MYSQL_USER" >> ~/.bash_profile
-echo "MYSQL_PASS=pass;export MYSQL_PASS" >> ~/.bash_profile
+echo "MYSQL_USER=root;export MYSQL_USER" >> ~/.bashrc
+echo "MYSQL_PASS=pass;export MYSQL_PASS" >> ~/.bashrc
 # Pantheon-specific
-echo "PANTHEON_USER=name@email.com;export PANTHEON_USER" >> ~/.bash_profile
-echo "PANTHEON_PASS=pass;export PANTHEON_PASS" >> ~/.bash_profile
-echo "HOST_PREFIX=pass;export HOST_PREFIX" >> ~/.bash_profile
-source ~/.bash_profile
+echo "PANTHEON_USER=name@email.com;export PANTHEON_USER" >> ~/.bashrc
+echo "PANTHEON_PASS=pass;export PANTHEON_PASS" >> ~/.bashrc
+echo "HOST_PREFIX=\"pantheon.\";export HOST_PREFIX" >> ~/.bashrc
+source ~/.bashrc
 ```
 
 ### Make apache run as your user

@@ -4,8 +4,9 @@
 
 local="$1"
 remote="$2"
-instance="$3"
+env="$3"
 prefix="$HOST_PREFIX"
+backup_dir="$PSITE_BACKUP_DIR"
 
 while test $# -gt 0; do
   case "$1" in
@@ -23,12 +24,17 @@ while test $# -gt 0; do
       ;;
     --no-files)
       shift
-      files=false
+      nofiles=false
       shift
       ;;
     --host-prefix)
       shift
       prefix="$1"
+      shift
+      ;;
+    --backup-dir)
+      shift
+      backup_dir=$1
       shift
       ;;
     *)
@@ -37,18 +43,22 @@ while test $# -gt 0; do
   esac
 done
 
+if [ ! -z $backup_dir ]; then 
+  echo "Taking backup of local in ${backup_dir}..."  
+  drush $local sql-dump --gzip --result-file=$backup_dir/backup_${LOCAL}_$(date +"%Y-%m-%d").sql
+fi
 
-# Sync db from Pantheon site environment to local
-pdrush sql-sync-pipe @${prefix}${remote}.${env} @${local} --progress
+echo "Syncing db from Pantheon site environment to local..."
+drush -y sql-sync-pipe @${prefix}${remote}.${env} @${local} --progress
 
 
-# Sync files from Pantheon site environment to local
-if [ ! $files ]; then 
-  pdrush -r . rsync @${prefix}${remote}.${env}:%files @${local}:%files/
+if [ ! $nofiles ]; then 
+  echo "Syncing files from Pantheon site environment to local..."  
+  drush -r . rsync @${prefix}${remote}.${env}:%files/ @${local}:%files --progress
 fi
 
 
-# Clear caches, log user in
+echo "Clearing caches, logging in as uid=0..."
 drush @$local rr
 drush @$local cc all
 drush @$local uli

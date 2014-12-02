@@ -34,6 +34,7 @@ while test $# -gt 0; do
       echo "--user         specify mysql user (defaults to $MYSQL_USER)"
       echo "--pass         specify mysql password (defaults to $MYSQL_PASS)"
       echo "--sql          path to local sql dump to import (optional)"
+      echo "--env          Pantheon (live) or Acquia (prod) enviornment to load db+files from"
       echo "--nodrupal     flag to skip the Drupal installation step"
       echo "--apache-only  only install apache"
       echo "-h,--help      show this screen"
@@ -91,6 +92,11 @@ while test $# -gt 0; do
       sql=$1
       shift
       ;;
+    --env)
+      shift
+      env=$1
+      shift
+      ;;
     --apache-only)
       shift
       apache_only=1
@@ -102,13 +108,15 @@ while test $# -gt 0; do
   esac
 done
 
+
 # clone repo if necessary
-if [ $repo ]; then #&& [ ! -d $path/$name ]; then
-  cd $path  
+if [ ! -z $repo ]; then
+  cd $path
   git clone $repo $name
+  cd $name
+  path=$path/$name
   git checkout -b drop
   git checkout master
-  $path=$path/$name
 fi
 
 
@@ -153,7 +161,9 @@ if [ -e /etc/apache2/sites-available ]; then
   fi
 fi
 
+
 cd $path
+pwd
 
 
 # Install drupal site
@@ -176,6 +186,13 @@ drush cc drush
 if [ ! -z $sql ]; then
   drush sqlc < "$sql"
 fi
+
+
+# Load db, files from remote
+if [ ! -z $env ]; then
+  psite-sync $name $name $env
+fi
+
 
 
 # Log the user in
