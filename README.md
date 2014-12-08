@@ -48,7 +48,7 @@ tail /var/log/apache2/sitename.local/error.log -n100
 ##### Helpful Pantheon [Terminus](https://github.com/pantheon-systems/terminus) commands
 ```
 # Authenticate.
-drush pauth $PANTHEON_USER --password=$PANTHEON_pass
+drush pauth $PANTHEON_USER --password=$PANTHEON_PASS
 
 # Update your aliases.
 drush paliases
