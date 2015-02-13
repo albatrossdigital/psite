@@ -45,19 +45,25 @@ pdrush drush_command
 tail /var/log/apache2/sitename.local/error.log -n100
 ```
 
-##### Helpful Pantheon [Terminus](https://github.com/pantheon-systems/terminus) commands
+##### Helpful Pantheon [Terminus](https://github.com/pantheon-systems/cli) commands
 ```
 # Authenticate.
-drush pauth $PANTHEON_USER --password=$PANTHEON_PASS
+terminus auth login $PANTHEON_USER --password=$PANTHEON_PASS
 
 # Update your aliases.
-drush paliases
+terminus sites aliases
+
+# List all sites
+terminus sites list
 
 # Deploy code to test env
-drush psite-deploy $SITE_UUID test
+terminus site deploy [--site=<site>] [--env=<env>] [--from=<env>]
 
-# Deploy content to test environment.
+# Deploy content to test environment. @todo: is this working?
 drush psite-clone $SITE_UUID dev test
+
+[Full list of commands](https://github.com/pantheon-systems/cli/wiki/Available-Commands)
+
 ```
 
 ### Setting system variables
